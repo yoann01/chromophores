@@ -16,6 +16,7 @@ chromophores.
 - [`docs/ROADMAP.md`](docs/ROADMAP.md) : phases, livrables et critères de passage.
 - [`docs/phase1/`](docs/phase1/README.md) : bilan et rapports de validation de la phase 1, dont
   l'ancrage sur mesures ISSA + NIST ([MESURES](docs/phase1/MESURES.md)).
+- [`docs/phase2/`](docs/phase2/README.md) : inversion RGB → chromophores (bilan d'étape, V3).
 - `data/` : spectres mesurés ISSA (Leeds) et NIST ; chargeurs dans `chromophores/datasets.py`.
 
 ## Code
@@ -32,6 +33,9 @@ chromophores.
 | `chromophores/mixture.py` | Phase 1 : mélange K=1/K=2 ajusté par cellule, lissé, interpolable |
 | `chromophores/forward.py` | Phase 1 : chromophores + λ héroïques → albédo et milieux de random walk |
 | `chromophores/adding_doubling.py` | Vérification analytique (adding-doubling bicouche) |
+| `chromophores/datasets.py` | Chargeurs ISSA (Leeds) et NIST |
+| `chromophores/inversion.py` | Phase 2 : MAP + incertitude, a priori, correction colorimétrique |
+| `chromophores/lut3d.py` | Phase 2 : LUT 3D RGB → chromophores (gamut peau) |
 | `chromophores/color.py` | Spectre → XYZ → sRGB linéaire (D65), caméras multispectrales idéalisées |
 
 ```bash
