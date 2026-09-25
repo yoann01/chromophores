@@ -25,6 +25,6 @@ critère de passage tiré de l'[ADR-0005](adr/0005-validation-et-criteres.md).
 | Phase | État |
 |---|---|
 | 1 | **Prototype livré** (2026-09-25). V1-A ✅, V2-albédo ✅ ; V1-moments, V2-forme et V2b ❌. Voir [bilan](phase1/README.md) et [ADR-0006](adr/0006-ajustements-phase1.md) (accepté). |
-| 2 | En attente de décision : démarrage possible (dépend seulement de l'albédo, validé). |
+| 2 | **En cours** (lancée le 2026-09-25) sur le modèle calibré (ADR-0007). |
 | 3 | Bloquée par V2-forme (table « farm » requise). |
 | 4 | — |

@@ -1,6 +1,6 @@
 # ADR-0007 : Absorption de fond calibrée sur mesures (ISSA + NIST)
 
-- Statut : Proposé
+- Statut : Accepté
 - Date : 2026-09-25
 - Décideurs : Y. Granier
 - Complète : [ADR-0002](0002-modele-direct-table-sans-dimension.md) (point 1, modèle de peau de référence)

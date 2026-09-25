@@ -94,7 +94,7 @@ Le décodeur pré-entraîné du dépôt [facebookresearch/BioSkin](https://githu
 
 ### 3.6 Ancrage sur des mesures réelles (ISSA + NIST)
 
-Voir [MESURES.md](MESURES.md) et [ADR-0007](../adr/0007-calibration-fond-mesures.md) (proposé) :
+Voir [MESURES.md](MESURES.md) et [ADR-0007](../adr/0007-calibration-fond-mesures.md) (accepté) :
 la moitié du fond de Jacques ajuste le mieux les ≈ 1 000 spectres ISSA et les 100 spectres
 NIST, avec une diffusion nominale. L'absence de fond (type BioSkin) donne les pires
 ajustements.

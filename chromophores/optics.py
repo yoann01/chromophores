@@ -32,12 +32,12 @@ class SkinModel:
 
     g_constant: float | None = None
     dermis_water_fraction: float = 0.65
-    baseline_scale: float = 1.0  # multiplier on the Jacques bloodless-tissue absorption
+    baseline_scale: float = 0.5  # x Jacques bloodless-tissue absorption; 0.5 calibrated on ISSA + NIST (ADR-0007)
     vessel_radius_cm: float = 0.0  # >0: vessel packaging of blood (van Veen et al. 2002)
 
     @classmethod
     def legacy(cls):
-        return cls(g_constant=ANISOTROPY, dermis_water_fraction=0.0)
+        return cls(g_constant=ANISOTROPY, dermis_water_fraction=0.0, baseline_scale=1.0)
 
     def anisotropy(self, lam):
         lam = np.asarray(lam, dtype=float)
