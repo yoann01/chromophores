@@ -12,6 +12,9 @@ chromophores.
 - [`docs/PRODUCTION.md`](docs/PRODUCTION.md) : pipeline pour digital doubles (albédo VFace →
   chromophores par vertex → homogénéisation par λ héroïque en shade-before-hit).
 
+- [`docs/adr/`](docs/adr/) : décisions d'architecture (ADR 0001–0005).
+- [`docs/ROADMAP.md`](docs/ROADMAP.md) : phases, livrables et critères de passage.
+
 ## Code
 
 | Module | Rôle |
