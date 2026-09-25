@@ -1,8 +1,8 @@
 # ADR-0001 : Séparer le modèle direct (bien posé, tabulé) de l'inversion (mal posée, probabiliste)
 
-- Statut : Proposé
+- Statut : Accepté
 - Date : 2026-09-25
-- Décideurs : Y. Granier (à valider)
+- Décideurs : Y. Granier
 
 ## Contexte
 

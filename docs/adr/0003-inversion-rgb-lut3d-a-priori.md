@@ -1,8 +1,8 @@
 # ADR-0003 : Inversion RGB → chromophores par LUT 3D, avec a priori explicite et incertitude
 
-- Statut : Proposé
+- Statut : Accepté
 - Date : 2026-09-25
-- Décideurs : Y. Granier (à valider)
+- Décideurs : Y. Granier
 
 ## Contexte
 

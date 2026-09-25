@@ -1,8 +1,8 @@
 # ADR-0002 : Modèle direct — peau bicouche → table sans dimension → mélange K=2 par cellule
 
-- Statut : Proposé
+- Statut : Accepté
 - Date : 2026-09-25
-- Décideurs : Y. Granier (à valider)
+- Décideurs : Y. Granier
 
 ## Contexte
 

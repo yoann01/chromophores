@@ -1,8 +1,8 @@
 # ADR-0004 : Représentation moteur — chromophores par vertex, évaluation au hit, mélange K=2 en hero wavelength
 
-- Statut : Proposé
+- Statut : Accepté
 - Date : 2026-09-25
-- Décideurs : Y. Granier (à valider)
+- Décideurs : Y. Granier
 
 ## Contexte
 

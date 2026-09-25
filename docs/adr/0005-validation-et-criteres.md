@@ -1,8 +1,8 @@
 # ADR-0005 : Stratégie de validation et critères d'acceptation
 
-- Statut : Proposé
+- Statut : Accepté
 - Date : 2026-09-25
-- Décideurs : Y. Granier (à valider)
+- Décideurs : Y. Granier
 
 ## Contexte
 
