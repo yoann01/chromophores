@@ -1,8 +1,7 @@
 # État de l'art : chromophores de la peau et subsurface scattering spectral
 
-> Synthèse de départ. Le PDF d'Aliaga & Jarabo (2026) n'a pas pu être téléchargé
-> depuis l'environnement de travail (arXiv est bloqué par le proxy). Ce qui en est dit
-> ici repose sur le résumé. Les références marquées ⚠ sont citées de mémoire et doivent
+> Synthèse de départ. Le papier d'Aliaga & Jarabo (2026) est maintenant analysé en
+> détail dans [`TOPO_ALIAGA_JARABO_2026.md`](TOPO_ALIAGA_JARABO_2026.md). Les références marquées ⚠ sont citées de mémoire et doivent
 > être vérifiées (auteurs, année, venue).
 
 ## 1. Le problème
@@ -45,7 +44,7 @@ Le milieu est homogénéisé et le rayon est réglé à la main.
 | Aliaga et al. 2022, *Estimation of Spectral Biophysical Skin Properties from Captured RGB Albedo* ([arXiv 2201.10695](https://arxiv.org/pdf/2201.10695)) | Encodeur/décodeur RGB ↔ biophysique, entraîné sur des simulations |
 | Aliaga et al. 2023, *A Hyperspectral Space of Skin Tones for Inverse Rendering of Biophysical Skin Properties* ([CGF](https://onlinelibrary.wiley.com/doi/abs/10.1111/cgf.14887)) | Espace latent des tons de peau appris sur des spectres simulés |
 | Biophysical skin model for heterogeneous volume rendering, CVM 2025 ([lien](https://www.sciopen.com/article/10.26599/CVM.2025.9450360)) | Deux couches volumétriques hétérogènes, coefficients appris depuis une texture d'albédo |
-| **Aliaga & Jarabo 2026, *Spectral SSS from RGB via Biophysical Skin Inversion*** ([arXiv 2606.27604](https://arxiv.org/html/2606.27604v1)) | Mélange de 3 milieux non corrélés, décodeur neuronal chaîné RGB → (g, rayon, albédo) spectraux, random walk avec sélection aléatoire du milieu |
+| **Aliaga & Jarabo 2026, *Spectral SSS from RGB via Biophysical Skin Inversion*** ([arXiv 2606.27604](https://arxiv.org/html/2606.27604v1)) | Mélange de 3 milieux non corrélés, décodeur neuronal chaîné RGB → (g, rayon, albédo) spectraux, random walk avec sélection aléatoire du milieu. Voir le [topo](TOPO_ALIAGA_JARABO_2026.md) |
 
 ### 2.3 Optique biomédicale (mesure quantitative)
 - Jacques 2013, *Optical properties of biological tissues: a review* (Phys. Med. Biol.) : lois μs′(λ) et spectres de la mélanine et du fond.

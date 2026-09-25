@@ -5,6 +5,8 @@ spectraux → subsurface scattering path-tracé) et sur l'inversion RGB/multispe
 chromophores.
 
 - [`docs/ETAT_DE_L_ART.md`](docs/ETAT_DE_L_ART.md) : synthèse bibliographique et jeux de données.
+- [`docs/TOPO_ALIAGA_JARABO_2026.md`](docs/TOPO_ALIAGA_JARABO_2026.md) : analyse du papier d'Aliaga &
+  Jarabo (2026) et mise en parallèle avec nos résultats.
 - [`docs/AXE_DE_RECHERCHE.md`](docs/AXE_DE_RECHERCHE.md) : axe proposé (identifiabilité et
   acquisition des chromophores), premiers résultats, programme.
 - [`docs/PRODUCTION.md`](docs/PRODUCTION.md) : pipeline pour digital doubles (albédo VFace →
