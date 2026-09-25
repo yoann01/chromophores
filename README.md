@@ -14,7 +14,9 @@ chromophores.
 
 - [`docs/adr/`](docs/adr/) : décisions d'architecture (ADR 0001–0005).
 - [`docs/ROADMAP.md`](docs/ROADMAP.md) : phases, livrables et critères de passage.
-- [`docs/phase1/`](docs/phase1/README.md) : bilan et rapports de validation de la phase 1.
+- [`docs/phase1/`](docs/phase1/README.md) : bilan et rapports de validation de la phase 1, dont
+  l'ancrage sur mesures ISSA + NIST ([MESURES](docs/phase1/MESURES.md)).
+- `data/` : spectres mesurés ISSA (Leeds) et NIST ; chargeurs dans `chromophores/datasets.py`.
 
 ## Code
 

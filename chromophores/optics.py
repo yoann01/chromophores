@@ -33,6 +33,7 @@ class SkinModel:
     g_constant: float | None = None
     dermis_water_fraction: float = 0.65
     baseline_scale: float = 1.0  # multiplier on the Jacques bloodless-tissue absorption
+    vessel_radius_cm: float = 0.0  # >0: vessel packaging of blood (van Veen et al. 2002)
 
     @classmethod
     def legacy(cls):
@@ -93,8 +94,16 @@ def epidermis_mua(lam, p: SkinParams, model: SkinModel = DEFAULT_MODEL):
     return p.melanin_fraction * mel + (1 - p.melanin_fraction) * model.baseline_scale * spectra.mua_baseline(lam) + car
 
 
+def vessel_packaging(mua_blood, radius_cm):
+    """Packaging factor for blood confined in cylindrical vessels (van Veen et al. 2002)."""
+    x = 2.0 * mua_blood * radius_cm
+    return np.where(x > 1e-8, (1.0 - np.exp(-x)) / np.maximum(x, 1e-8), 1.0)
+
+
 def dermis_mua(lam, p: SkinParams, model: SkinModel = DEFAULT_MODEL):
     blood = spectra.mua_blood(lam, p.oxygen_saturation)
+    if model.vessel_radius_cm > 0:
+        blood = blood * vessel_packaging(blood, model.vessel_radius_cm)
     car = spectra.mua_from_molar(spectra.eps_beta_carotene(lam), p.carotene_umol * 1e-6)
     bil = spectra.mua_from_molar(spectra.eps_bilirubin(lam), p.bilirubin_umol * 1e-6)
     mua = p.blood_fraction * blood + (1 - p.blood_fraction) * model.baseline_scale * spectra.mua_baseline(lam) + car + bil

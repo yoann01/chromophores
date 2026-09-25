@@ -5,3 +5,5 @@ numba
 colour-science
 pytest
 iadpython
+openpyxl
+pandas
