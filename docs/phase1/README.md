@@ -2,7 +2,7 @@
 
 Date : 2026-09-25. Cadre : [ADR-0001](../adr/0001-separer-direct-et-inverse.md),
 [ADR-0002](../adr/0002-modele-direct-table-sans-dimension.md),
-[ADR-0005](../adr/0005-validation-et-criteres.md), et ajustements proposés dans
+[ADR-0005](../adr/0005-validation-et-criteres.md), et ajustements acceptés dans
 [ADR-0006](../adr/0006-ajustements-phase1.md).
 
 Rapports détaillés générés par les scripts : [V1](V1_table.md), [V2](V2_mixture.md),
@@ -63,6 +63,34 @@ confirme le résultat principal d'Aliaga & Jarabo : un seul milieu ne suffit pas
    différences restent (mélanine, sang, chromophores basaux, voire l'espace de leurs
    RGB). Il faut le détail du modèle d'Aliaga et al. 2023. **Notre modèle n'a pas été
    ajusté pour coller à leurs couleurs.**
+
+### 3.5 Comparaison avec BioSkin (Aliaga et al. 2023), ajout du 2026-09-25
+
+Détails : [BIOSKIN_COMPARISON.md](BIOSKIN_COMPARISON.md), figure `bioskin_vs_ours_spectra.png`.
+Le décodeur pré-entraîné du dépôt [facebookresearch/BioSkin](https://github.com/facebookresearch/BioSkin)
+(MIT) est exécuté en numpy (`scripts/external/`).
+
+- **La référence V2b est valide.** Leur décodeur 2023, avec leur conversion couleur
+  (fonctions CIE seules, illuminant E, matrice XYZ → RGB maison), reproduit les RGB
+  publiés en 2026 à ΔE00 médian 2,9. V2b doit donc être évalué avec *leur* conversion,
+  pas avec D65/sRGB. « Mel. Blend » est bien la fraction d'eumélanine.
+- **Cause n° 1 de l'écart : l'absorption de fond.** Sur une peau quasi sans
+  chromophores, BioSkin donne 0,62 / 0,64 / 0,76 / 0,77 (450 / 550 / 650 / 750 nm).
+  Notre modèle *sans* absorption de fond donne 0,63 / 0,66 / 0,82 / 0,82 ; avec la loi
+  de Jacques (7,84·10⁸ λ⁻³·²⁵⁵), 0,38 / 0,44 / 0,52 / 0,55.
+- **Sans absorption de fond**, l'écart médian au décodeur tombe de 8,7 à 4,8 ΔE00. Les
+  tons clairs sont à 1,7–3,5. Les tons riches en phéomélanine ou très pigmentés restent
+  à 8–13.
+- **Autres différences visibles :**
+  - bandes de l'hémoglobine moins profondes chez eux à fraction égale (définition
+    différente de la fraction sanguine : leur plage va jusqu'à 25 %) ;
+  - phéomélanine plus absorbante dans le rouge chez eux.
+- **Qui a raison ?** Aucun des deux modèles n'est validé in vivo. L'arbitre doit être la
+  mesure, par exemple les 100 spectres NIST. L'accès à `data.nist.gov` est bloqué depuis
+  l'environnement de travail.
+- **Point d'architecture favorable** : ces choix (absorption de fond, spectres) sont en
+  amont des nombres sans dimension. **Les changer ne demande pas de recalculer les
+  tables** : seul `SkinModel` change.
 
 ## 4. Pistes pour les critères non atteints
 

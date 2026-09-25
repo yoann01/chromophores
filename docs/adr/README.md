@@ -11,7 +11,7 @@ par »).
 | [0003](0003-inversion-rgb-lut3d-a-priori.md) | Inversion RGB → chromophores par LUT 3D avec a priori explicite et incertitude | Accepté | 2026-09-25 |
 | [0004](0004-representation-moteur-shade-before-hit.md) | Représentation moteur : chromophores par vertex, évaluation au hit, mélange K=2 en hero wavelength | Accepté | 2026-09-25 |
 | [0005](0005-validation-et-criteres.md) | Stratégie de validation et critères d'acceptation | Accepté | 2026-09-25 |
-| [0006](0006-ajustements-phase1.md) | Ajustements phase 1 : mélange à g partagé, interpolation préservant l'albédo, critère V2 relatif au bruit (amende 0002 et 0005) | Proposé | 2026-09-25 |
+| [0006](0006-ajustements-phase1.md) | Ajustements phase 1 : mélange à g partagé, interpolation préservant l'albédo, critère V2 relatif au bruit (amende 0002 et 0005) | Accepté | 2026-09-25 |
 
 La mise en œuvre par phases est décrite dans [`../ROADMAP.md`](../ROADMAP.md).
 

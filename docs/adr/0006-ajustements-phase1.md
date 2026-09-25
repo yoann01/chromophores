@@ -1,6 +1,6 @@
 # ADR-0006 : Ajustements issus de la phase 1 (mélange à g partagé, interpolation préservant l'albédo, critère V2 relatif au bruit)
 
-- Statut : Proposé
+- Statut : Accepté
 - Date : 2026-09-25
 - Décideurs : Y. Granier
 - Amende : [ADR-0002](0002-modele-direct-table-sans-dimension.md) (points 4 et 6), [ADR-0005](0005-validation-et-criteres.md) (niveau V2)
