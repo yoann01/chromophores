@@ -8,6 +8,7 @@ Sources
   coefficients (see data/hemoglobin_prahl.csv).
 - Eumelanin / pheomelanin: power laws from Jacques (1998) and
   Donner & Jensen (2006), "A Spectral BSSRDF for Shading Human Skin".
+- Water: Segelstein (1981) / Hale & Querry (1973), see data/water_segelstein.csv.
 - Baseline (bloodless, melanin-free) tissue: Jacques (1998),
   mu_a = 7.84e8 * lambda^-3.255.
 - beta-carotene and bilirubin: *approximate* Gaussian-mixture fits of the
@@ -28,6 +29,8 @@ HB_BLOOD_CONCENTRATION = 150.0  # g/L of whole blood
 
 # Visible range used for colour computations.
 WAVELENGTHS = np.arange(380.0, 781.0, 10.0)
+# Full simulated range (aligned with Aliaga & Jarabo 2026).
+WAVELENGTHS_FULL = np.arange(250.0, 1001.0, 2.0)
 
 
 def _load_hemoglobin():
@@ -38,6 +41,16 @@ def _load_hemoglobin():
 
 
 _HB_LAMBDA, _EPS_HBO2, _EPS_HB = _load_hemoglobin()
+
+
+def _load_water():
+    path = resources.files("chromophores") / "data" / "water_segelstein.csv"
+    with path.open() as f:
+        table = np.loadtxt(f, delimiter=",", comments="#", skiprows=3)
+    return table[:, 0], table[:, 1]
+
+
+_WATER_LAMBDA, _WATER_MUA = _load_water()
 
 
 def _interp(lam, x, y):
@@ -62,6 +75,11 @@ def mua_deoxyhemoglobin(lam):
 def mua_blood(lam, so2):
     """Absorption of whole blood with oxygen saturation `so2` in [0, 1]."""
     return so2 * mua_oxyhemoglobin(lam) + (1.0 - so2) * mua_deoxyhemoglobin(lam)
+
+
+def mua_water(lam):
+    """Absorption of pure liquid water (cm^-1), Segelstein (1981)."""
+    return _interp(lam, _WATER_LAMBDA, _WATER_MUA)
 
 
 def mua_eumelanin(lam):

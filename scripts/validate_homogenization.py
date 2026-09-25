@@ -12,16 +12,16 @@ from identifiability import RANGES, from_unit
 
 from chromophores import montecarlo, optics
 from chromophores.homogenize import SkinHomogenizer
-from chromophores.optics import SkinParams
+from chromophores.optics import SkinModel, SkinParams
 
 H = SkinHomogenizer()
 DERMIS_CM = 5.0  # effectively semi-infinite, consistent with the table
 
 
 def layered_mc(p, lam, n_photons=100_000, r_max=1.0, n_bins=200, seed=5):
-    epi, der = optics.layers(np.array([lam]), p, DERMIS_CM)
+    epi, der = optics.layers(np.array([lam]), p, DERMIS_CM, SkinModel.legacy())
     return montecarlo.run_layers(
-        [epi.mua[0], der.mua[0]], [epi.mus[0], der.mus[0]], [epi.g, der.g], [epi.thickness_cm, der.thickness_cm], n_photons, r_max, n_bins, seed
+        [epi.mua[0], der.mua[0]], [epi.mus[0], der.mus[0]], [epi.g[0], der.g[0]], [epi.thickness_cm, der.thickness_cm], n_photons, r_max, n_bins, seed
     )
 
 

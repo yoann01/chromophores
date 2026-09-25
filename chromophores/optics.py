@@ -17,8 +17,35 @@ from . import spectra
 # Reduced scattering of average skin, Jacques (2013): mu_s' = a (lambda/500)^-b.
 SCATTER_A = 46.0  # cm^-1
 SCATTER_B = 1.421
-ANISOTROPY = 0.8
+ANISOTROPY = 0.8  # prototype (legacy) constant anisotropy
 REFRACTIVE_INDEX = 1.4
+
+
+@dataclass(frozen=True)
+class SkinModel:
+    """Model-level (non per-texel) choices. See docs/adr/0002.
+
+    The default is the phase-1 model aligned with Aliaga & Jarabo (2026):
+    g(lambda) = 0.62 + 0.00029 lambda and water in the dermis.
+    `SkinModel.legacy()` reproduces the prototype used in docs/AXE_DE_RECHERCHE.md.
+    """
+
+    g_constant: float | None = None
+    dermis_water_fraction: float = 0.65
+    baseline_scale: float = 1.0  # multiplier on the Jacques bloodless-tissue absorption
+
+    @classmethod
+    def legacy(cls):
+        return cls(g_constant=ANISOTROPY, dermis_water_fraction=0.0)
+
+    def anisotropy(self, lam):
+        lam = np.asarray(lam, dtype=float)
+        if self.g_constant is not None:
+            return np.full(lam.shape, self.g_constant)
+        return 0.62 + 0.00029 * lam
+
+
+DEFAULT_MODEL = SkinModel()
 
 
 @dataclass(frozen=True)
@@ -47,7 +74,7 @@ class SkinParams:
 class LayerOptics:
     mua: np.ndarray  # cm^-1
     mus: np.ndarray  # cm^-1
-    g: float
+    g: np.ndarray
     thickness_cm: float
 
     @property
@@ -60,22 +87,26 @@ def reduced_scattering(lam, scale=1.0):
     return scale * SCATTER_A * (lam / 500.0) ** -SCATTER_B
 
 
-def epidermis_mua(lam, p: SkinParams):
+def epidermis_mua(lam, p: SkinParams, model: SkinModel = DEFAULT_MODEL):
     mel = p.eumelanin_ratio * spectra.mua_eumelanin(lam) + (1 - p.eumelanin_ratio) * spectra.mua_pheomelanin(lam)
     car = spectra.mua_from_molar(spectra.eps_beta_carotene(lam), p.carotene_umol * 1e-6)
-    return p.melanin_fraction * mel + (1 - p.melanin_fraction) * spectra.mua_baseline(lam) + car
+    return p.melanin_fraction * mel + (1 - p.melanin_fraction) * model.baseline_scale * spectra.mua_baseline(lam) + car
 
 
-def dermis_mua(lam, p: SkinParams):
+def dermis_mua(lam, p: SkinParams, model: SkinModel = DEFAULT_MODEL):
     blood = spectra.mua_blood(lam, p.oxygen_saturation)
     car = spectra.mua_from_molar(spectra.eps_beta_carotene(lam), p.carotene_umol * 1e-6)
     bil = spectra.mua_from_molar(spectra.eps_bilirubin(lam), p.bilirubin_umol * 1e-6)
-    return p.blood_fraction * blood + (1 - p.blood_fraction) * spectra.mua_baseline(lam) + car + bil
+    mua = p.blood_fraction * blood + (1 - p.blood_fraction) * model.baseline_scale * spectra.mua_baseline(lam) + car + bil
+    if model.dermis_water_fraction:
+        mua = mua + model.dermis_water_fraction * spectra.mua_water(lam)
+    return mua
 
 
-def layers(lam, p: SkinParams, dermis_thickness_cm=0.2):
+def layers(lam, p: SkinParams, dermis_thickness_cm=0.2, model: SkinModel = DEFAULT_MODEL):
+    g = model.anisotropy(lam)
     musp = reduced_scattering(lam, p.scattering_scale)
-    mus = musp / (1.0 - ANISOTROPY)
-    epi = LayerOptics(epidermis_mua(lam, p), mus, ANISOTROPY, p.epidermis_thickness_cm)
-    der = LayerOptics(dermis_mua(lam, p), mus, ANISOTROPY, dermis_thickness_cm)
+    mus = musp / (1.0 - g)
+    epi = LayerOptics(epidermis_mua(lam, p, model), mus, g, p.epidermis_thickness_cm)
+    der = LayerOptics(dermis_mua(lam, p, model), mus, g, dermis_thickness_cm)
     return epi, der

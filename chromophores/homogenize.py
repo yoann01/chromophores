@@ -1,5 +1,8 @@
 """Per-wavelength homogenisation of two-layer skin for a hero-wavelength random walk.
 
+PROTOTYPE (3D table, constant g, single medium). Superseded by the phase-1
+modules `table` and `mixture` (ADR-0002); kept to reproduce docs/PRODUCTION.md.
+
 Key observation: at a fixed wavelength, with index-matched layers sharing the
 same scattering (mu_s, g) and a (quasi) semi-infinite dermis, the diffuse
 response of the two-layer model depends only on three dimensionless numbers:
@@ -26,7 +29,9 @@ import numpy as np
 from scipy.interpolate import RegularGridInterpolator
 
 from . import montecarlo, optics
-from .optics import SkinParams
+from .optics import SkinModel, SkinParams
+
+LEGACY = SkinModel.legacy()
 
 TABLE_FILE = "skin_homogenization_table.npz"
 
@@ -106,7 +111,7 @@ class SkinHomogenizer:
         self.g_h = float(t["g_h"])
 
     def dimensionless(self, lam, p: SkinParams):
-        epi, der = optics.layers(lam, p)
+        epi, der = optics.layers(lam, p, model=LEGACY)
         musp = der.musp
         x = np.stack([epi.mua * epi.thickness_cm, der.mua / musp, epi.thickness_cm * musp], -1)
         return x, musp

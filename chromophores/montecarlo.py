@@ -13,7 +13,7 @@ import numpy as np
 from numba import njit, prange
 
 from . import optics
-from .optics import SkinParams
+from .optics import SkinModel, SkinParams
 
 
 @njit(cache=True)
@@ -48,13 +48,13 @@ def _sample_hg(g, ux, uy, uz):
 
 
 @njit(parallel=True, cache=True)
-def _run(n_photons, mua, mus, g, z_bounds, n_tissue, r_max, n_bins, seed):
+def _run(n_photons, mua, mus, g, z_bounds, n_tissue, edges, seed):
     n_layers = mua.shape[0]
+    n_bins = edges.shape[0] - 1
     hist = np.zeros(n_bins)
-    bin_w = r_max / n_bins
     n_chunks = 64
     per = n_photons // n_chunks
-    partial = np.zeros((n_chunks, n_bins + 2))
+    partial = np.zeros((n_chunks, n_bins + 3))
     for c in prange(n_chunks):
         np.random.seed(seed + c)
         for _ in range(per):
@@ -93,8 +93,9 @@ def _run(n_photons, mua, mus, g, z_bounds, n_tissue, r_max, n_bins, seed):
                             r = np.sqrt(x * x + y * y)
                             partial[c, n_bins] += w
                             partial[c, n_bins + 1] += w * r
-                            b = int(r / bin_w)
-                            if b < n_bins:
+                            partial[c, n_bins + 2] += w * r * r
+                            b = np.searchsorted(edges, r, side="right") - 1
+                            if 0 <= b < n_bins:
                                 partial[c, b] += w
                             alive = False
                             break
@@ -114,13 +115,26 @@ def _run(n_photons, mua, mus, g, z_bounds, n_tissue, r_max, n_bins, seed):
                         break
     total = 0.0
     total_r = 0.0
+    total_r2 = 0.0
     for c in range(n_chunks):
         total += partial[c, n_bins]
         total_r += partial[c, n_bins + 1]
+        total_r2 += partial[c, n_bins + 2]
         for b in range(n_bins):
             hist[b] += partial[c, b]
     n = per * n_chunks
-    return total / n, total_r / max(total, 1e-300), hist / n
+    norm = max(total, 1e-300)
+    return total / n, total_r / norm, total_r2 / norm, hist / n
+
+
+def run_binned(mua, mus, g, thickness, edges, n_photons=100_000, seed=1, n_tissue=optics.REFRACTIVE_INDEX):
+    """Random walk in index-matched layers with arbitrary radial bin edges.
+
+    Returns (A, <r>, <r^2>, hist) where hist[i] is the reflected weight per
+    launched photon exiting with edges[i] <= r < edges[i+1].
+    """
+    z_bounds = np.concatenate([[0.0], np.cumsum(np.asarray(thickness, dtype=float))])
+    return _run(n_photons, np.asarray(mua, float), np.asarray(mus, float), np.asarray(g, float), z_bounds, n_tissue, np.asarray(edges, float), seed)
 
 
 def run_layers(mua, mus, g, thickness, n_photons=100_000, r_max=1.0, n_bins=100, seed=1, n_tissue=optics.REFRACTIVE_INDEX):
@@ -128,17 +142,17 @@ def run_layers(mua, mus, g, thickness, n_photons=100_000, r_max=1.0, n_bins=100,
 
     Returns (total diffuse reflectance, mean exit radius, radial histogram per photon).
     """
-    z_bounds = np.concatenate([[0.0], np.cumsum(np.asarray(thickness, dtype=float))])
-    return _run(n_photons, np.asarray(mua, float), np.asarray(mus, float), np.asarray(g, float), z_bounds, n_tissue, r_max, n_bins, seed)
+    A, r1, _, hist = run_binned(mua, mus, g, thickness, np.linspace(0.0, r_max, n_bins + 1), n_photons, seed, n_tissue)
+    return A, r1, hist
 
 
-def simulate(lam, p: SkinParams, n_photons=200_000, dermis_thickness_cm=0.2, r_max_cm=1.0, n_bins=100, seed=1):
+def simulate(lam, p: SkinParams, n_photons=200_000, dermis_thickness_cm=0.2, r_max_cm=1.0, n_bins=100, seed=1, model: SkinModel = SkinModel.legacy()):
     """Diffuse reflectance per wavelength + radial profile R(r) [cm^-2].
 
     Returns (R, r_centers, profile) with profile of shape (len(lam), n_bins).
     """
     lam = np.atleast_1d(np.asarray(lam, dtype=float))
-    epi, der = optics.layers(lam, p, dermis_thickness_cm)
+    epi, der = optics.layers(lam, p, dermis_thickness_cm, model)
     edges = np.linspace(0.0, r_max_cm, n_bins + 1)
     areas = np.pi * (edges[1:] ** 2 - edges[:-1] ** 2)
     R = np.empty(len(lam))
@@ -146,7 +160,7 @@ def simulate(lam, p: SkinParams, n_photons=200_000, dermis_thickness_cm=0.2, r_m
     for i in range(len(lam)):
         mua = np.array([epi.mua[i], der.mua[i]])
         mus = np.array([epi.mus[i], der.mus[i]])
-        g = np.array([epi.g, der.g])
+        g = np.array([np.broadcast_to(epi.g, lam.shape)[i], np.broadcast_to(der.g, lam.shape)[i]])
         R[i], _, h = run_layers(mua, mus, g, [epi.thickness_cm, der.thickness_cm], n_photons, r_max_cm, n_bins, seed + 1000 * i)
         prof[i] = h / areas
     return R, 0.5 * (edges[1:] + edges[:-1]), prof

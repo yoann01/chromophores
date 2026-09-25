@@ -21,7 +21,9 @@ import numpy as np
 from common import SERIES, plt, save
 
 from chromophores import color, optics, reflectance
-from chromophores.optics import SkinParams
+from chromophores.optics import SkinModel, SkinParams
+
+LEGACY = SkinModel.legacy()
 from chromophores.spectra import WAVELENGTHS as LAM
 
 # name, low, high, log-scale
@@ -64,7 +66,7 @@ def from_unit(u):
 def measurements(u):
     p = from_unit(u)
     R = reflectance.diffuse_reflectance(LAM, p)
-    _, der = optics.layers(LAM, p)
+    _, der = optics.layers(LAM, p, model=LEGACY)
     sigma_tr = np.sqrt(3 * der.mua * (der.mua + der.musp))
     log_len = np.log(W_CH @ (1.0 / sigma_tr))
     rgb = M_RGB @ R
@@ -147,8 +149,8 @@ def metamer_figure(n=30000, seed=0):
     for j, k in enumerate(pick):
         p = from_unit(U[k])
         axes[0].plot(LAM, R[k], color=SERIES[j + 1], label=f"Métamère {j + 1} (ΔE00={de[k]:.2f})")
-        _, der0 = optics.layers(LAM, from_unit(target))
-        _, der = optics.layers(LAM, p)
+        _, der0 = optics.layers(LAM, from_unit(target), model=LEGACY)
+        _, der = optics.layers(LAM, p, model=LEGACY)
         l0 = 1 / np.sqrt(3 * der0.mua * (der0.mua + der0.musp))
         axes[1].plot(LAM, 10 * np.sqrt(3 * der.mua * (der.mua + der.musp)) ** -1, color=SERIES[j + 1], label=f"Métamère {j + 1}")
         print(f"metamer {j + 1}: " + ", ".join(f"{a}={getattr(p, a):.3g}" for a, *_ in RANGES))

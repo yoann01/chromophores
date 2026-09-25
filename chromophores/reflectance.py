@@ -14,7 +14,7 @@ from __future__ import annotations
 import numpy as np
 
 from . import optics
-from .optics import SkinParams
+from .optics import SkinModel, SkinParams
 
 
 def internal_reflection_A(n=optics.REFRACTIVE_INDEX):
@@ -30,8 +30,8 @@ def semi_infinite_diffuse_reflectance(mua, musp, n=optics.REFRACTIVE_INDEX):
     return 0.5 * a * (1.0 + np.exp(-4.0 / 3.0 * A * s)) * np.exp(-s)
 
 
-def diffuse_reflectance(lam, p: SkinParams, path_in=1.0, path_out=2.0):
-    """Diffuse (specular excluded) reflectance spectrum of skin."""
-    epi, der = optics.layers(lam, p)
+def diffuse_reflectance(lam, p: SkinParams, path_in=1.0, path_out=2.0, model: SkinModel = SkinModel.legacy()):
+    """Diffuse (specular excluded) reflectance spectrum of skin (prototype model by default)."""
+    epi, der = optics.layers(lam, p, model=model)
     t_epi = np.exp(-epi.mua * epi.thickness_cm * (path_in + path_out))
     return t_epi * semi_infinite_diffuse_reflectance(der.mua, der.musp)
