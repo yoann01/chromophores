@@ -54,7 +54,7 @@ def _run(n_photons, mua, mus, g, z_bounds, n_tissue, r_max, n_bins, seed):
     bin_w = r_max / n_bins
     n_chunks = 64
     per = n_photons // n_chunks
-    partial = np.zeros((n_chunks, n_bins + 1))
+    partial = np.zeros((n_chunks, n_bins + 2))
     for c in prange(n_chunks):
         np.random.seed(seed + c)
         for _ in range(per):
@@ -92,6 +92,7 @@ def _run(n_photons, mua, mus, g, z_bounds, n_tissue, r_max, n_bins, seed):
                         else:
                             r = np.sqrt(x * x + y * y)
                             partial[c, n_bins] += w
+                            partial[c, n_bins + 1] += w * r
                             b = int(r / bin_w)
                             if b < n_bins:
                                 partial[c, b] += w
@@ -112,11 +113,23 @@ def _run(n_photons, mua, mus, g, z_bounds, n_tissue, r_max, n_bins, seed):
                     else:
                         break
     total = 0.0
+    total_r = 0.0
     for c in range(n_chunks):
         total += partial[c, n_bins]
+        total_r += partial[c, n_bins + 1]
         for b in range(n_bins):
             hist[b] += partial[c, b]
-    return total / (per * n_chunks), hist / (per * n_chunks)
+    n = per * n_chunks
+    return total / n, total_r / max(total, 1e-300), hist / n
+
+
+def run_layers(mua, mus, g, thickness, n_photons=100_000, r_max=1.0, n_bins=100, seed=1, n_tissue=optics.REFRACTIVE_INDEX):
+    """Random walk in a stack of index-matched layers (units are arbitrary but consistent).
+
+    Returns (total diffuse reflectance, mean exit radius, radial histogram per photon).
+    """
+    z_bounds = np.concatenate([[0.0], np.cumsum(np.asarray(thickness, dtype=float))])
+    return _run(n_photons, np.asarray(mua, float), np.asarray(mus, float), np.asarray(g, float), z_bounds, n_tissue, r_max, n_bins, seed)
 
 
 def simulate(lam, p: SkinParams, n_photons=200_000, dermis_thickness_cm=0.2, r_max_cm=1.0, n_bins=100, seed=1):
@@ -126,7 +139,6 @@ def simulate(lam, p: SkinParams, n_photons=200_000, dermis_thickness_cm=0.2, r_m
     """
     lam = np.atleast_1d(np.asarray(lam, dtype=float))
     epi, der = optics.layers(lam, p, dermis_thickness_cm)
-    z_bounds = np.array([0.0, epi.thickness_cm, epi.thickness_cm + der.thickness_cm])
     edges = np.linspace(0.0, r_max_cm, n_bins + 1)
     areas = np.pi * (edges[1:] ** 2 - edges[:-1] ** 2)
     R = np.empty(len(lam))
@@ -135,6 +147,6 @@ def simulate(lam, p: SkinParams, n_photons=200_000, dermis_thickness_cm=0.2, r_m
         mua = np.array([epi.mua[i], der.mua[i]])
         mus = np.array([epi.mus[i], der.mus[i]])
         g = np.array([epi.g, der.g])
-        R[i], h = _run(n_photons, mua, mus, g, z_bounds, optics.REFRACTIVE_INDEX, r_max_cm, n_bins, seed + 1000 * i)
+        R[i], _, h = run_layers(mua, mus, g, [epi.thickness_cm, der.thickness_cm], n_photons, r_max_cm, n_bins, seed + 1000 * i)
         prof[i] = h / areas
     return R, 0.5 * (edges[1:] + edges[:-1]), prof

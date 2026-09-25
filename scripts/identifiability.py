@@ -164,6 +164,41 @@ def metamer_figure(n=30000, seed=0):
     save(fig, "rgb_metamers.png")
 
 
+def gain_nuisance_table(gain_range=(0.6, 1.0)):
+    """Same analysis with an unknown achromatic gain on the albedo.
+
+    Models baked occlusion / cavity shading or exposure error left in a
+    captured albedo map: R_measured = gain * R.
+    """
+    lo, hi = gain_range
+    skins = {
+        "claire": SkinParams(melanin_fraction=0.02, blood_fraction=0.015, bilirubin_umol=1.0),
+        "moyenne": SkinParams(melanin_fraction=0.08, bilirubin_umol=1.0),
+        "foncée": SkinParams(melanin_fraction=0.30, eumelanin_ratio=0.9, bilirubin_umol=1.0),
+    }
+    setups = {"RGB": M_RGB, "Multispectral 8 bandes": M_MS8, "Spectre 380–780 nm": np.eye(len(LAM))}
+
+    def meas(v, M):
+        gain = lo + v[-1] * (hi - lo)
+        return M @ (gain * reflectance.diffuse_reflectance(LAM, from_unit(v[:-1]))) / NOISE
+
+    print("\n| Peau | Mesure | " + " | ".join(LABELS) + " | Gain |")
+    print("|---|---|" + "---|" * (len(LABELS) + 1))
+    for skin, p in skins.items():
+        v0 = np.concatenate([to_unit(p), [0.75]])
+        for k, M in setups.items():
+            J = []
+            for i in range(len(v0)):
+                dv = np.zeros_like(v0)
+                dv[i] = 1e-4
+                J.append((meas(v0 + dv, M) - meas(v0 - dv, M)) / 2e-4)
+            J = np.array(J).T
+            F = J.T @ J + np.eye(len(v0)) / PRIOR_STD**2
+            s = np.sqrt(np.diag(np.linalg.inv(F)))
+            print(f"| {skin} | {k} + gain | " + " | ".join(f"{x:.2f}" for x in s) + " |")
+
+
 if __name__ == "__main__":
     identifiability_figure()
     metamer_figure()
+    gain_nuisance_table()

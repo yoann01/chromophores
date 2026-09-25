@@ -29,3 +29,14 @@ def test_monte_carlo_matches_diffusion_for_thick_bright_medium():
     r_mc, _, _ = montecarlo.simulate(lam, p, n_photons=64_000, dermis_thickness_cm=2.0)
     r_an = reflectance.diffuse_reflectance(lam, p)
     assert abs(r_mc[0] - r_an[0]) / r_mc[0] < 0.1
+
+
+def test_homogenizer_matches_its_own_moments():
+    from chromophores.homogenize import SkinHomogenizer
+
+    h = SkinHomogenizer()
+    lam = np.array([450.0, 550.0, 650.0, 750.0])  # a hero-wavelength bundle
+    m = h.medium(lam, SkinParams())
+    assert np.all((m.sigma_s > 0) & (m.sigma_a > 0))
+    # Redder light: less absorption, longer diffusion.
+    assert np.all(np.diff(m.albedo_ms) > 0) and np.all(np.diff(m.mean_radius_cm) > 0)

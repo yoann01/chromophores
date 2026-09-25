@@ -99,10 +99,9 @@ varie d'un facteur 1,6 environ : même couleur, mais translucidité différente 
 | **D. A priori appris** | Distribution conjointe des chromophores (à partir de C et des bases publiques) utilisée pour régulariser l'inversion RGB | Inversion RGB → (chromophores, incertitude) plutôt qu'un point estimé |
 | **E. Retour au rendu** | Chromophores → μa(λ), μs(λ), g par couche → random walk spectral multicouche. Comparaison avec le mélange de 3 milieux d'Aliaga & Jarabo : erreur sur R(r), temps de rendu | Évaluation quantitative, profils radiaux mesurés vs rendus |
 
-### 5. Questions ouvertes à trancher ensemble
+### 5. Cadrage retenu
 
-1. **Cible** : rendu de production (visages numériques) ou fidélité biomédicale
-   (dermatologie, équité des tons de peau) ? Cela change les priorités entre C et E.
-2. **Matériel disponible** pour l'étape C (caméra, LEDs, projecteur, spectrophotomètre) ?
-3. **Renderer cible** pour l'étape E (PBRT-v4, Mitsuba 3 — différentiable, donc utile
-   pour l'inversion —, moteur maison) ?
+Cible : **rendu de production** de digital doubles, à partir d'albédos calibrés
+(VFace), avec un moteur spectral hero wavelength en shade-before-hit. Le pipeline
+détaillé, les résultats propres à ce contexte et les prochaines étapes sont dans
+[`PRODUCTION.md`](PRODUCTION.md).

@@ -7,6 +7,8 @@ chromophores.
 - [`docs/ETAT_DE_L_ART.md`](docs/ETAT_DE_L_ART.md) : synthèse bibliographique et jeux de données.
 - [`docs/AXE_DE_RECHERCHE.md`](docs/AXE_DE_RECHERCHE.md) : axe proposé (identifiabilité et
   acquisition des chromophores), premiers résultats, programme.
+- [`docs/PRODUCTION.md`](docs/PRODUCTION.md) : pipeline pour digital doubles (albédo VFace →
+  chromophores par vertex → homogénéisation par λ héroïque en shade-before-hit).
 
 ## Code
 
@@ -16,6 +18,7 @@ chromophores.
 | `chromophores/optics.py` | Paramètres biophysiques → μa, μs, g par couche (épiderme / derme) |
 | `chromophores/reflectance.py` | Modèle analytique rapide (filtre épidermique + dipôle) |
 | `chromophores/montecarlo.py` | Marche aléatoire de référence (numba) : réflectance + profil radial R(r) |
+| `chromophores/homogenize.py` | Table 3D sans dimension (Monte Carlo) → milieu homogène de random walk par longueur d'onde |
 | `chromophores/color.py` | Spectre → XYZ → sRGB linéaire (D65), caméras multispectrales idéalisées |
 
 ```bash
@@ -23,6 +26,9 @@ pip install -r requirements.txt
 python scripts/plot_chromophores.py        # figure des spectres
 python scripts/validate_forward_model.py   # analytique vs Monte Carlo
 python scripts/identifiability.py          # Cramér-Rao + recherche de métamères RGB
+python scripts/production_metamerism.py    # calibration caméra + métamérisme d'illuminant
+python scripts/build_homogenization_table.py  # ~5 min, régénère chromophores/data/*.npz
+python scripts/validate_homogenization.py  # table vs MC, profils multicouche vs homogène
 python -m pytest -q tests
 ```
 
