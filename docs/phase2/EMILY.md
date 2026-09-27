@@ -58,3 +58,22 @@ Note : l'échelle absolue de la texture spéculaire est inconnue ; k couvre des 
    - **cohérence avec les normales et l'éclairage** : le spéculaire suit la géométrie (lobes
      alignés sur les normales), pas les chromophores ;
    - en dernier recours, un réseau entraîné sur des paires cross/parallèle (Light Stage).
+
+## 5. Planche complète à pleine résolution (1280²)
+
+`scripts/phase2/emily_maps.py` — diffuse calibrée (×0,75), LUT 65³, a priori visage.
+
+![planche](../figures/phase2_emily_fullmaps.png)
+![zoom](../figures/phase2_emily_zoom.png)
+
+Lecture :
+- **Mélanine** : taches pigmentaires et zones brunes sous les yeux et sur les joues, bien
+  détaillées (visibles dans le zoom).
+- **Hémoglobine** : faible et homogène sur la peau ; élevée sur les lèvres, les paupières et les
+  narines. L'intérieur de la bouche est très élevé, mais ce n'est pas de la peau : à masquer.
+- **SO₂** : élevée et lisse (0,86 médiane), incertitude faible dans cette zone de l'a priori.
+- **Épaisseur, ratio eu/phéo, diffusion** : leurs structures reflètent surtout des fuites de la
+  couleur (mêmes contours que la mélanine) ; conformément à l'identifiabilité, ces cartes ne sont
+  pas fiables depuis le RGB et doivent rester lisses et peignables.
+- **Hors peau** : une partie des cheveux bruns tombe dans le gamut (confondue avec une peau très
+  pigmentée) ; un masque cheveux/yeux/bouche est nécessaire.
