@@ -77,3 +77,22 @@ Lecture :
   pas fiables depuis le RGB et doivent rester lisses et peignables.
 - **Hors peau** : une partie des cheveux bruns tombe dans le gamut (confondue avec une peau très
   pigmentée) ; un masque cheveux/yeux/bouche est nécessaire.
+
+## 6. Reconstruction de l'albédo à partir des cartes seules
+
+`scripts/phase2/emily_reconstruct.py` : chaque texel (mélanine, sang, SO₂, épaisseur, β, diffusion)
+repasse dans le modèle direct (table multicouche → spectre 380–780 nm → sRGB linéaire), **sans
+résidu ni correction colorimétrique**.
+
+- ΔE00 sur la peau : médiane **0,73**, p90 2,05, p95 2,80, p99 4,68 ; 65 % des texels < 1, 89 % < 2.
+- Le détail (taches, cernes, pores, rougeurs de la narine) est reproduit.
+- **Artefacts localisés** : quelques taches « brûlées » (blanches) au centre du front, sur le nez,
+  sur la joue et les lèvres, et une bande à ΔE ≈ 2 autour du nez et sous les yeux. Ce sont des
+  texels proches du bord du gamut, où l'interpolation de la LUT mélange des nœuds de paramètres
+  très différents. Correctif prévu : contrôle direct par texel (re-rendu) et optimisation MAP
+  directe pour les texels dont l'erreur dépasse un seuil.
+- Le résidu (correction colorimétrique) ramènerait l'ensemble à ΔE = 0 par construction ; ces
+  chiffres mesurent ce que les cartes portent seules.
+- Bonus : les mêmes cartes rendues sous tungstène (A), grâce au spectre complet par texel.
+
+![reconstruction](../figures/phase2_emily_reconstruction.png)
