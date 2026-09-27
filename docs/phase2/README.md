@@ -81,6 +81,17 @@ consigner dans un futur ADR si tu es d'accord.
 3. Les spectres ISSA au-delà de 700 nm sont extrapolés à valeur constante (tiers des
    données seulement) : les comparaisons spectrales portent sur 400–700 nm.
 
+## 4 bis. Premier albédo de production (VFace)
+
+Voir [VFACE_1001](VFACE_1001.md) :
+- l'auto-calibration détecte que le fichier « lin_srgb » est en réalité encodé en sRGB
+  (7 % contre 99,7 % de texels dans le gamut peau) ;
+- les cartes gardent le détail à pleine résolution (plaques de couperose dans la carte de sang) ;
+- le résidu du modèle seul vaut 0,34 ΔE00 en médiane (1,45 au p95), concentré sur les
+  oreilles, les lèvres et les zones de remplissage ;
+- une diaphonie mélanine/sang est visible dans les rougeurs : c'est le prochain correctif
+  (régularisation spatiale).
+
 ## 5. Reste à faire (phase 2)
 
 | Élément (ADR-0003) | État |
@@ -89,4 +100,5 @@ consigner dans un futur ADR si tu es d'accord.
 | Modèle caméra : calibration orientée peau à partir des spectres ISSA réels, ou sensibilités spectrales | À faire (LUT actuelle : sRGB linéaire idéal) |
 | Régularisation spatiale (mélanine nette, sang diffus) | À faire |
 | LUT par région (masques VFace) | Mécanique prête (a priori par région) ; manque une texture VFace |
-| Test sur un albédo VFace réel | En attente d'un fichier |
+| Test sur un albédo VFace réel | Fait (UDIM 1001) ; diaphonie mélanine/sang à corriger |
+| Diaphonie mélanine / sang (régularisation spatiale, covariance de l'a priori) | **Prioritaire** |
