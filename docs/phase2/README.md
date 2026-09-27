@@ -92,6 +92,17 @@ Voir [VFACE_1001](VFACE_1001.md) :
 - une diaphonie mélanine/sang est visible dans les rougeurs : c'est le prochain correctif
   (régularisation spatiale).
 
+## 4 ter. Digital Emily (Light Stage, polarisation croisée)
+
+Voir [EMILY](EMILY.md) :
+- **auto-calibration** (`lut3d.autocalibrate`, exposition + balance R/B) : Emily ×0,75, VFace ×0,77 ;
+  elle ramène la diffuse dans le gamut peau (à valider par un artiste, car exposition et teint
+  sont en partie confondus) ;
+- **la séparation du spéculaire par la couleur, sur une seule image, échoue sur la peau** : un
+  spéculaire ajouté ressemble à « moins de mélanine » (99 % des texels restent plausibles). Non
+  retiré, il fausse la mélanine de 30 à 70 %. Sans polarisation croisée, il faudra des indices
+  géométriques (multi-vues, normales).
+
 ## 5. Reste à faire (phase 2)
 
 | Élément (ADR-0003) | État |
@@ -102,3 +113,4 @@ Voir [VFACE_1001](VFACE_1001.md) :
 | LUT par région (masques VFace) | Mécanique prête (a priori par région) ; manque une texture VFace |
 | Test sur un albédo VFace réel | Fait (UDIM 1001) ; diaphonie mélanine/sang à corriger |
 | Diaphonie mélanine / sang (régularisation spatiale, covariance de l'a priori) | **Prioritaire** |
+| Séparation du spéculaire sans polarisation croisée (multi-vues) | À explorer (la séparation par la couleur est invalidée) |

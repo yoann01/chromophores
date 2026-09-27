@@ -146,3 +146,36 @@ class RGBToChromophores:
             "dE_node": self._dE(e).reshape(shape),
         }
         return out
+
+
+def autocalibrate(rgb_lin, reference_rgb=None, tol=0.03, n_samples=100_000, seed=0):
+    """Global exposure + white balance that best bring a texture onto the measured skin gamut.
+
+    Low-dimensional on purpose (3 gains: exposure and R/B balance relative to G) so that it
+    corrects a delivery/calibration error without absorbing the actual skin tone. The
+    objective is robust (truncated distance), so non-skin texels (hair, eyes, clothes) weigh
+    little. Returns (gains[3], fraction in gamut before, after).
+    """
+    from scipy.optimize import minimize
+
+    ref = reference_skin_rgb() if reference_rgb is None else reference_rgb
+    tree = cKDTree(encode(ref))
+    flat = np.reshape(rgb_lin, (-1, 3))
+    rng = np.random.default_rng(seed)
+    pix = flat[rng.choice(len(flat), min(n_samples, len(flat)), replace=False)]
+
+    def gains(v):
+        e, r, b = np.exp(v)
+        return np.array([e * r, e, e * b])
+
+    def cost(v):
+        d, _ = tree.query(encode(pix * gains(v)))
+        return np.mean(np.minimum(d, 0.1))
+
+    best = min(
+        (minimize(cost, np.array([np.log(e0), 0.0, 0.0]), method="Nelder-Mead", options={"xatol": 1e-3, "fatol": 1e-5}) for e0 in (0.5, 0.75, 1.0, 1.3)),
+        key=lambda r: r.fun,
+    )
+    g = gains(best.x)
+    frac = lambda k: float(np.mean(tree.query(encode(pix * k))[0] <= tol))  # noqa: E731
+    return g, frac(np.ones(3)), frac(g)

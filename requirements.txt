@@ -7,3 +7,4 @@ pytest
 iadpython
 openpyxl
 pandas
+OpenEXR
