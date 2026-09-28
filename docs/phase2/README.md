@@ -111,14 +111,29 @@ fermeture de l'albédo d'Emily : égalité (médiane 0,73 contre 0,85). Une text
 telle quelle à BioSkin crée un biais de ~5 ΔE00 (convention couleur interne différente), ce qui
 explique probablement la dérive observée avec l'ancien pipeline.
 
-## 5. Reste à faire (phase 2)
+## 5. Clôture (2026-09-28)
 
-| Élément (ADR-0003) | État |
+Voir [CLOTURE](CLOTURE.md) : pipeline de production `chromophores/pipeline.py`
+(`process_albedo` → `export`), cartes EXR d'Emily et de VFace dans `exports/`.
+
+- **Masque non-peau** : gamut peau + distance de Mahalanobis à l'a priori ; en pratique le gamut
+  fait tout le travail (cheveux, yeux, bouche).
+- **Diaphonie mélanine / sang** : diagnostiquée comme un **biais basse fréquence du modèle
+  direct** (anticorrélation à l'échelle des plaques de rougeur, pas dans la direction mal
+  déterminée de l'a posteriori). Aucune régularisation locale ne la corrige ; reportée en phase 3
+  (confinement du sang dans les vaisseaux, sang papillaire, validation multispectrale).
+- **Régularisation** : limitée aux paramètres mal contraints (eu/phéo, SO₂, épaisseur),
+  mélanine et sang gardés au MAP pour préserver tout le détail.
+- **Bords de LUT** : traités par le résidu couleur (fermeture exacte à la précision machine) et
+  le masque de gamut.
+- **Diffusion** : non identifiable ; utiliser une constante en production.
+
+## 6. Reporté après la phase 2
+
+| Élément | Raison / piste |
 |---|---|
-| Gain / occlusion résiduelle (marginalisation, ou division par une AO issue du déplacement) | **Prioritaire** : visible sur les cartes |
-| Modèle caméra : calibration orientée peau à partir des spectres ISSA réels, ou sensibilités spectrales | À faire (LUT actuelle : sRGB linéaire idéal) |
-| Régularisation spatiale (mélanine nette, sang diffus) | À faire |
-| LUT par région (masques VFace) | Mécanique prête (a priori par région) ; manque une texture VFace |
-| Test sur un albédo VFace réel | Fait (UDIM 1001) ; diaphonie mélanine/sang à corriger |
-| Diaphonie mélanine / sang (régularisation spatiale, covariance de l'a priori) | **Prioritaire** |
-| Séparation du spéculaire sans polarisation croisée (multi-vues) | À explorer (la séparation par la couleur est invalidée) |
+| Gain / occlusion résiduelle | Nécessite une AO issue du déplacement, ou une marginalisation du gain |
+| Modèle caméra (sensibilités spectrales) | Pas de données caméra ; LUT en sRGB linéaire idéal |
+| Séparation du spéculaire sans polarisation croisée | La séparation par la couleur est invalidée ; indices géométriques (multi-vues) |
+| Diaphonie mélanine / sang basse fréquence | Modèle direct (phase 3) |
+| LUT par région (masques VFace) | Mécanique prête ; pas de masques de région fournis |

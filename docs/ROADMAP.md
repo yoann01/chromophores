@@ -25,6 +25,6 @@ critère de passage tiré de l'[ADR-0005](adr/0005-validation-et-criteres.md).
 | Phase | État |
 |---|---|
 | 1 | **Prototype livré** (2026-09-25). V1-A ✅, V2-albédo ✅ ; V1-moments, V2-forme et V2b ❌. Voir [bilan](phase1/README.md) et [ADR-0006](adr/0006-ajustements-phase1.md) (accepté). |
-| 2 | **En cours** : inversion MAP, a priori ISSA/NIST, LUT 3D et V3 sur données réelles livrés ([bilan](phase2/README.md)). Restent : gain/AO, calibration caméra, régularisation spatiale, test VFace. |
+| 2 | **Clôturée** (2026-09-28). Inversion MAP, a priori ISSA/NIST, LUT 3D avec covariance, pipeline de production (`chromophores/pipeline.py` : auto-calibration, masque, régularisation des paramètres secondaires, résidu couleur, export EXR), testé sur VFace et Digital Emily ([bilan](phase2/README.md), [clôture](phase2/CLOTURE.md)). Reportés : gain/AO, calibration caméra, séparation du spéculaire sans polarisation croisée, diaphonie mélanine/sang basse fréquence (modèle direct, phase 3). |
 | 3 | Bloquée par V2-forme (table « farm » requise). |
 | 4 | — |

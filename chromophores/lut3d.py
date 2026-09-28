@@ -132,6 +132,11 @@ class RGBToChromophores:
         self._s = RegularGridInterpolator((axis,) * 3, s)
         self._valid = RegularGridInterpolator((axis,) * 3, valid.astype(float))
         self._dE = RegularGridInterpolator((axis,) * 3, np.nan_to_num(dE, nan=99.0))
+        self._cov = None
+        if "cov_tri" in t:
+            c = t["cov_tri"].astype(np.float64)
+            c[dst] = c[src]
+            self._cov = RegularGridInterpolator((axis,) * 3, c)
 
     def __call__(self, rgb_lin):
         shape = np.shape(rgb_lin)[:-1]
@@ -144,8 +149,54 @@ class RGBToChromophores:
             "p84": hi.reshape(shape + (inv.N,)),
             "in_gamut": (self._valid(e) > 0.999).reshape(shape),
             "dE_node": self._dE(e).reshape(shape),
+            "x": x.reshape(shape + (inv.N,)),
         }
+        if self._cov is not None:
+            out["cov"] = tri_to_full(self._cov(e)).reshape(shape + (inv.N, inv.N))
         return out
+
+
+TRI = np.triu_indices(inv.N)
+
+
+def tri_to_full(tri):
+    full = np.zeros(tri.shape[:-1] + (inv.N, inv.N))
+    full[..., TRI[0], TRI[1]] = tri
+    full[..., TRI[1], TRI[0]] = tri
+    return full
+
+
+def _node_cov(args):
+    x, y, mean, cov = args
+    if "fwd" not in _W:
+        _W["fwd"] = inv.Forward(specular=0.0)
+    prior = inv.Prior(mean, cov)
+    noise = noise_model(y)
+
+    def res(v):
+        return np.concatenate([(M_SRGB @ _W["fwd"].spectrum(v) - y) / noise, prior.residual(v)])
+
+    r0 = res(x)
+    J = np.stack([(res(x + h) - r0) / 1e-4 for h in np.eye(inv.N) * 1e-4], 1)
+    C = np.linalg.pinv(J.T @ J)
+    return C[TRI]
+
+
+def add_covariance(path, processes=None):
+    """Add the full Laplace covariance (upper triangle) of every valid node to an existing LUT file."""
+    with np.load(path) as f:
+        t = {k: f[k] for k in f.files}
+    valid = t["valid"]
+    n = int(t["n"])
+    axis = t["axis"]
+    idx = np.argwhere(valid)
+    args = [(t["x"][tuple(i)], decode(axis[i]), t["prior_mean"], t["prior_cov"]) for i in idx]
+    with Pool(processes or os.cpu_count()) as pool:
+        tri = pool.map(_node_cov, args, chunksize=32)
+    cov_tri = np.full((n, n, n, len(TRI[0])), np.nan, np.float32)
+    cov_tri[tuple(idx.T)] = np.array(tri, np.float32)
+    t["cov_tri"] = cov_tri
+    np.savez_compressed(path, **t)
 
 
 def autocalibrate(rgb_lin, reference_rgb=None, tol=0.03, n_samples=100_000, seed=0):
