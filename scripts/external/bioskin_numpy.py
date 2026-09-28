@@ -62,3 +62,37 @@ class BioSkinDecoder:
         h = np.tanh(x @ w["fc_dec_in.weight"].T + w["fc_dec_in.bias"])
         h = np.tanh(h @ w["fc_dec.weight"].T + w["fc_dec.bias"])
         return 1 / (1 + np.exp(-(h @ w["fc_dec_out.weight"].T + w["fc_dec_out.bias"])))
+
+
+# Their spectrum -> RGB conversion (bioskin/spectrum/color_spectrum.py): CIE CMFs only (equal-energy),
+# custom "D65" matrix, sum / n over 380-780 nm, output stored in BGR order.
+M_THEIRS = np.array([[12.420749767575597, -3.7146545623403702, 0.21326517187700963],
+                     [-5.8918942422391520, 7.1897002408297634, -0.78197265064351096],
+                     [-1.9108846122515208, 0.15926100824153880, 4.0520420060904261]])
+
+
+def theirs_rgb(R, lam):
+    """Spectra (n, len(lam)) -> their linear RGB (R, G, B order), visible part only."""
+    import colour
+
+    vis = lam <= 780
+    cmfs = colour.MSDS_CMFS["CIE 1931 2 Degree Standard Observer"]
+    xyzbar = np.stack([np.interp(lam[vis], cmfs.wavelengths, cmfs.values[:, k]) for k in range(3)])
+    xyz = np.atleast_2d(R)[:, vis] @ xyzbar.T / vis.sum()
+    return xyz @ M_THEIRS  # == (M^T @ xyz) per row: r, g, b
+
+
+def encode_params(self, bgr):
+    """Encoder: linear BGR (their convention) -> network-space parameters."""
+    w = self.w
+    h = np.tanh(bgr @ w["fc_enc_in.weight"].T + w["fc_enc_in.bias"])
+    h = np.tanh(h @ w["fc_enc.weight"].T + w["fc_enc.bias"])
+    return 1 / (1 + np.exp(-(h @ w["fc_enc_out.weight"].T + w["fc_enc_out.bias"])))
+
+
+def warp(x):
+    """Network space -> physical (melanin, blood, thickness cm, SO2, ratio)."""
+    return np.stack([x[:, 0] ** 3, x[:, 1] ** 4, THICK_MIN + x[:, 2] * (THICK_MAX - THICK_MIN), x[:, 3], x[:, 4]], -1)
+
+
+BioSkinDecoder.encode = encode_params

@@ -103,6 +103,14 @@ Voir [EMILY](EMILY.md) :
   retiré, il fausse la mélanine de 30 à 70 %. Sans polarisation croisée, il faudra des indices
   géométriques (multi-vues, normales).
 
+## 4 quater. Benchmark contre BioSkin (Aliaga et al. 2023)
+
+Voir [BENCHMARK_BIOSKIN](BENCHMARK_BIOSKIN.md). Sur des spectres mesurés : nos spectres sont
+1,6× plus proches de la mesure et nos couleurs meilleures sous tous les éclairages. Sur la
+fermeture de l'albédo d'Emily : égalité (médiane 0,73 contre 0,85). Une texture sRGB D65 donnée
+telle quelle à BioSkin crée un biais de ~5 ΔE00 (convention couleur interne différente), ce qui
+explique probablement la dérive observée avec l'ancien pipeline.
+
 ## 5. Reste à faire (phase 2)
 
 | Élément (ADR-0003) | État |

@@ -86,11 +86,13 @@ résidu ni correction colorimétrique**.
 
 - ΔE00 sur la peau : médiane **0,73**, p90 2,05, p95 2,80, p99 4,68 ; 65 % des texels < 1, 89 % < 2.
 - Le détail (taches, cernes, pores, rougeurs de la narine) est reproduit.
-- **Artefacts localisés** : quelques taches « brûlées » (blanches) au centre du front, sur le nez,
-  sur la joue et les lèvres, et une bande à ΔE ≈ 2 autour du nez et sous les yeux. Ce sont des
-  texels proches du bord du gamut, où l'interpolation de la LUT mélange des nœuds de paramètres
-  très différents. Correctif prévu : contrôle direct par texel (re-rendu) et optimisation MAP
-  directe pour les texels dont l'erreur dépasse un seuil.
+- **Taches blanches (correction du 2026-09-28)** : ce ne sont *pas* des erreurs de
+  reconstruction, mais les texels classés **hors du gamut peau** (glabelle, nez, lèvres), affichés
+  avec la couleur de remplissage (gris clair). Les vraies erreurs fortes (ΔE > 5, 0,6 % de la
+  peau) sont des bords de cheveux très sombres.
+- Une bande à ΔE ≈ 2 autour du nez et sous les yeux reste à analyser (zones proches du bord du
+  gamut). Correctif possible : contrôle direct par texel et optimisation MAP directe au-delà d'un
+  seuil d'erreur.
 - Le résidu (correction colorimétrique) ramènerait l'ensemble à ΔE = 0 par construction ; ces
   chiffres mesurent ce que les cartes portent seules.
 - Bonus : les mêmes cartes rendues sous tungstène (A), grâce au spectre complet par texel.
