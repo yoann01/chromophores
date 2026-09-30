@@ -89,9 +89,13 @@ def mua_eumelanin(lam):
 
 
 def mua_pheomelanin(lam):
-    """Absorption inside a pheomelanin-filled melanosome (cm^-1)."""
+    """Absorption inside a pheomelanin-filled melanosome (cm^-1).
+
+    Donner & Jensen 2006, eq. 4: 2.9e14 lambda^-4.75 mm^-1 = 2.9e15 cm^-1 (fixed 2026-09-30, was
+    10x too low; see docs/phase2/PHEO_CHECK.md).
+    """
     lam = np.asarray(lam, dtype=float)
-    return 2.9e14 * lam ** -4.75
+    return 2.9e15 * lam ** -4.75
 
 
 def mua_baseline(lam):
