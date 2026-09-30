@@ -118,10 +118,12 @@ Voir [CLOTURE](CLOTURE.md) : pipeline de production `chromophores/pipeline.py`
 
 - **Masque non-peau** : gamut peau + distance de Mahalanobis à l'a priori ; en pratique le gamut
   fait tout le travail (cheveux, yeux, bouche).
-- **Diaphonie mélanine / sang** : diagnostiquée comme un **biais basse fréquence du modèle
-  direct** (anticorrélation à l'échelle des plaques de rougeur, pas dans la direction mal
-  déterminée de l'a posteriori). Aucune régularisation locale ne la corrige ; reportée en phase 3
-  (confinement du sang dans les vaisseaux, sang papillaire, validation multispectrale).
+- **Diaphonie mélanine / sang** : causée surtout par une **constante de phéomélanine 10 fois trop
+  faible** (Donner & Jensen 2006 donnent des mm⁻¹, recopiés en cm⁻¹ ; trouvé en comparant avec le
+  moteur Opus, voir [PHEO_CHECK](PHEO_CHECK.md)). Corrigée le 2026-09-30 : corrélation à l'échelle
+  des plaques de −0,49 à +0,21 (VFace), de −0,57 à −0,29 (Emily). La mélanine ajustée devient
+  plausible (a priori visage 2,4 % au lieu de 18 %). Les rapports V3, VFace, Emily et BioSkin
+  sont antérieurs à la correction.
 - **Régularisation** : limitée aux paramètres mal contraints (eu/phéo, SO₂, épaisseur),
   mélanine et sang gardés au MAP pour préserver tout le détail.
 - **Bords de LUT** : traités par le résidu couleur (fermeture exacte à la précision machine) et
@@ -135,5 +137,5 @@ Voir [CLOTURE](CLOTURE.md) : pipeline de production `chromophores/pipeline.py`
 | Gain / occlusion résiduelle | Nécessite une AO issue du déplacement, ou une marginalisation du gain |
 | Modèle caméra (sensibilités spectrales) | Pas de données caméra ; LUT en sRGB linéaire idéal |
 | Séparation du spéculaire sans polarisation croisée | La séparation par la couleur est invalidée ; indices géométriques (multi-vues) |
-| Diaphonie mélanine / sang basse fréquence | Modèle direct (phase 3) |
+| Diaphonie mélanine / sang résiduelle (Emily) | À surveiller ; validation multispectrale |
 | LUT par région (masques VFace) | Mécanique prête ; pas de masques de région fournis |
