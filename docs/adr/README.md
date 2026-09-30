@@ -13,6 +13,7 @@ par »).
 | [0005](0005-validation-et-criteres.md) | Stratégie de validation et critères d'acceptation | Accepté | 2026-09-25 |
 | [0006](0006-ajustements-phase1.md) | Ajustements phase 1 : mélange à g partagé, interpolation préservant l'albédo, critère V2 relatif au bruit (amende 0002 et 0005) | Accepté | 2026-09-25 |
 | [0007](0007-calibration-fond-mesures.md) | Absorption de fond calibrée sur mesures ISSA + NIST (Jacques × 0,5) | Accepté | 2026-09-25 |
+| [0008](0008-epiderme-filtre-ou-melange.md) | Phase 3 : filtre épidermique sur random walk dermique ou mélange K=2, départagés par un test d'image (V4-bord) | Proposé | 2026-09-30 |
 
 La mise en œuvre par phases est décrite dans [`../ROADMAP.md`](../ROADMAP.md).
 
